@@ -3,12 +3,14 @@
     <head>
         <link href="https://bootswatch.com/paper/bootstrap.min.css" rel="stylesheet" type="text/css">
 		<link href="main.css" rel="stylesheet" type="text/css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     </head>
     <body>
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse-1">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -16,15 +18,15 @@
                     </button>
                     <a class="navbar-brand" href="#">uoft scheduler</a>
                 </div>
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <form class="navbar-form navbar-left" role="search">
+                <div class="collapse navbar-collapse" id="bs-navbar-collapse-1">
+                    <form class="navbar-form navbar-left" id="griddy-form" role="search" method="get">
                         <div class="form-group">
-                            <input type="text" class="form-control griddy-url" name="griddy-url" placeholder="Enter a Griddy URL">
+                            <input type="url" class="form-control griddy-url" name="griddy-url" id="griddy-url" placeholder="Enter a Griddy URL">
                         </div>
                         <button type="submit" class="btn btn-default">submit</button>
                     </form>
                     <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#">settings (favicon)</a></li>
+                        <li><a href="#">settings (icon)</a></li>
                     </ul>
                 </div>
             </div>
@@ -45,5 +47,18 @@
                 </div>
             </div>
         </div>
+		<script>
+		$("#griddy-form").submit(function(e) {
+			e.preventDefault();
+			var url = $("#griddy-url").val();
+			var head = "http://griddy.org/?link="
+			if (url.indexOf(head) != 0) { alert("Not a valid Griddy URL."); return; }
+			var s = url.substring(head.length());
+			$.post("getcoords", { encoded_url: s }, function(data) {
+				console.log(data);
+				// google maps api
+			});
+		});
+		</script>
     </body>
 </html>
