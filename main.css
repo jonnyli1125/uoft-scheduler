@@ -1,18 +1,6 @@
-html { 
+html, body { 
     height: 100%; 
     min-height: 100%; 
-}
-
-body { 
-    height: 100%; 
-    min-height: 100%; 
-}
-
-.navbar { 
-    margin-bottom: 2px; 
-    position: fixed; 
-    width: 100%; 
-    z-index: 99; 
 }
 
 .body { 
@@ -26,10 +14,10 @@ body {
     padding: 0;
 }
 
-.sidebar {
+.sidebar .list-group-item {
     width: 100%;
 }
 
-.list-group-item {
-    width: 100%;
+.griddy-url {
+	width: 500px !important;
 }
