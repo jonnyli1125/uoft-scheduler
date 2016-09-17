@@ -1,0 +1,19 @@
+{
+  "name": "uoft-scheduler",
+  "version": "1.0.0",
+  "description": "API for UofT students to manage their courses in an efficient manner",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jonnyli1125/uoft-scheduler.git"
+  },
+  "author": "Alex, Jonny, Kabir",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jonnyli1125/uoft-scheduler/issues"
+  },
+  "homepage": "https://github.com/jonnyli1125/uoft-scheduler#readme"
+}
