@@ -2,15 +2,16 @@
 <html lang="en">
     <head>
         <link href="https://bootswatch.com/paper/bootstrap.min.css" rel="stylesheet" type="text/css">
-		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="main.css" rel="stylesheet" type="text/css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.0/moment.min.js"></script>
     </head>
     <body>
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container-fluid">
-                <div class="navbar-header">
+                <div class="navbar-header col-md-3" style="padding-left: 0;">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse-1">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
@@ -47,7 +48,7 @@
                                 <li><a href="#">Thursday &nbsp;<input type="checkbox"></a></li>
                                 <li><a href="#">Friday &nbsp;<input type="checkbox"></a></li>
                                 <li class="divider"></li>
-                                <li style="padding: 10px"><a class="btn btn-default" href="#">update</a></li>
+                                <li style="padding: 10px"><a class="btn btn-default" href="#">UPDATE</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -56,7 +57,7 @@
         </nav>
         <div class="container-fluid body">
             <div class="row" style="height: 100%;">
-                <div class="col-sm-4 col-md-3 sidebar">
+                <div class="col-md-3 sidebar">
                     <ul class="nav nav-sidebar list-group">
                         <li class="list-group-item">
                             <h4>MAT135</h4>
@@ -68,7 +69,7 @@
                         </li>
                     </ul>
                 </div>
-            </div>	
+            </div>  
         </div>
         <script>
         $("#griddy-form").submit(function(e) {

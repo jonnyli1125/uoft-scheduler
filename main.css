@@ -19,5 +19,5 @@ html, body {
 }
 
 .griddy-url {
-	width: 900px !important;
+    width: 400px !important; /* ideal width so we can keep responsiveness */
 }
