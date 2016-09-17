@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <link href="https://bootswatch.com/paper/bootstrap.min.css" rel="stylesheet" type="text/css">
-		<link href="main.css" rel="stylesheet" type="text/css">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <link href="main.css" rel="stylesheet" type="text/css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     </head>
     <body>
         <nav class="navbar navbar-default navbar-fixed-top">
@@ -45,20 +45,20 @@
                         </li>
                     </ul>
                 </div>
-            </div>
+            </div>	
         </div>
-		<script>
-		$("#griddy-form").submit(function(e) {
-			e.preventDefault();
-			var url = $("#griddy-url").val();
-			var head = "http://griddy.org/?link="
-			if (url.indexOf(head) != 0) { alert("Not a valid Griddy URL."); return; }
-			var s = url.substring(head.length());
-			$.post("getcoords", { encoded_url: s }, function(data) {
-				console.log(data);
-				// google maps api
-			});
-		});
-		</script>
+        <script>
+        $("#griddy-form").submit(function(e) {
+            e.preventDefault();
+            var url = $("#griddy-url").val();
+            var head = "http://griddy.org/?link="
+            if (url.indexOf(head) != 0) { alert("Not a valid Griddy URL."); return; }
+            var s = url.substring(head.length());
+            $.post("getcoords", { encoded_url: s }, function(data) {
+                console.log(data);
+                // google maps api
+            });
+        });
+        </script>
     </body>
 </html>
