@@ -8,8 +8,7 @@ var morgan = require('morgan');
 var port = process.env.PORT || 8080;
 
 // routes
-// var apiRoutes = require('./app/api/api.js');
-// var authRoutes = require('./app/api/auth');
+var apiRoutes = require('./routes/routes');
 
 // use body parser so we can get info from POST and/or URL parameters
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -24,6 +23,9 @@ app.use(morgan('dev'));
 app.get('/', function(req, res) {
     res.json({ message: 'Welcome to the main route! The API is at http:localhost:' + port + '/api' });
 });
+
+// authentication routes
+app.use('/api', apiRoutes);
 
 // start the server
 app.listen(port);
