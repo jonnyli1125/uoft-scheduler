@@ -1,0 +1,35 @@
+html { 
+    height: 100%; 
+    min-height: 100%; 
+}
+
+body { 
+    height: 100%; 
+    min-height: 100%; 
+}
+
+.navbar { 
+    margin-bottom: 2px; 
+    position: fixed; 
+    width: 100%; 
+    z-index: 99; 
+}
+
+.body { 
+    height: 100%; 
+    padding-top: 66px; 
+}
+
+.sidebar {
+    background-color: #eee;
+    min-height: 100%;
+    padding: 0;
+}
+
+.sidebar {
+    width: 100%;
+}
+
+.list-group-item {
+    width: 100%;
+}
