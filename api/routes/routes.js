@@ -7,7 +7,7 @@ apiRoutes.get('/', function(req, res) {
 });
 
 apiRoutes.post('/getcoords', function(req, res) {
-  var encodedUrl = req.body.encoded_url;
+  var encodedUrl = req.query.encoded_url;
 
   res.json({ message: "Here's the response: " + encodedUrl })
 
