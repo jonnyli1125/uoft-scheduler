@@ -6,7 +6,6 @@
         <link href="main.css" rel="stylesheet" type="text/css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.0/moment.min.js"></script>
     </head>
     <body>
         <nav class="navbar navbar-default navbar-fixed-top">
@@ -27,24 +26,29 @@
                         </div>
                         <button type="submit" class="btn btn-default">submit</button>
                     </form>
-
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
-							<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" style="height: 64px"><i class="fa fa-cutlery fa-2x"></i></a>
-							<ul class="dropdown-menu" role="menu">
-								<li class="dropdown-header">Food finder</li>
-								<li><a href="#">Show UofT food locations <input type="checkbox"></a></li>
-							</ul>
-						</li>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" style="height: 64px"><i class="fa fa-cutlery fa-2x"></i></a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li class="dropdown-header">Food Finder</li>
+                                <li class="divider"></li>
+                                <li><a href="#"><input type="checkbox"> Show UofT food locations</a></li>
+                            </ul>
+                        </li>
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" style="height: 64px"><i class="fa fa-cog fa-2x"></i></a>
-                            <ul class="dropdown-menu" role="menu">
+                            <ul class="dropdown-menu" role="menu" id="settings">
                                 <li class="dropdown-header">Settings</li>
-                                <li><a href="#">Monday</a></li>
-                                <li><a href="#">Tuesday</a></li>
-                                <li><a href="#">Wednesday</a></li>
-                                <li><a href="#">Thursday</a></li>
-                                <li><a href="#">Friday</a></li>
+
+                                <li class="divider"></li>
+								<li id="term-f" class="active"><a href="#">Fall</a></li>
+								<li id="term-s"><a href="#">Spring</a></li>
+                                <li class="divider"></li>
+								<li id="day-m" class="active"><a href="#">Monday</a></li>
+								<li id="day-t"><a href="#">Tuesday</a></li>
+								<li id="day-w"><a href="#">Wednesday</a></li>
+								<li id="day-r"><a href="#">Thursday</a></li>
+								<li id="day-f"><a href="#">Friday</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -54,13 +58,13 @@
         <div class="container-fluid body">
             <div class="row" style="height: 100%;">
                 <div class="col-md-3 sidebar">
-                    <ul class="nav nav-sidebar list-group">
-                        <li class="list-group-item">
-                            <h4>MAT137</h4>
+                    <ul class="nav nav-sidebar list-group" id="event-list">
+                        <li class="list-group-item event">
+                            <h4>MAT135</h4>
                             <p>100 meters, 5 minutes</p>
                         </li>
-                        <li class="list-group-item">
-                            <h4>CSC148</h4>
+                        <li class="list-group-item event">
+                            <h4>CSC108</h4>
                             <p>50 meters, 3 minutes</p>
                         </li>
                         <li class="list-group-item">
@@ -80,16 +84,94 @@
             </div>  
         </div>
         <script>
+        function secondsToTime(sec) {
+            var sec_num = parseInt(sec, 10);
+            var hours = Math.floor(sec_num / 3600);
+            var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+            // var seconds = sec_num - (hours * 3600) - (minutes * 60);
+            var p;
+            if (hours < 12) p = "AM";
+            else {
+                hours -= 12;
+                p = "PM";
+            }
+            if (minutes < 10) minutes = "0" + minutes;
+            //if (seconds < 10) seconds = "0" + seconds;
+            return hours + (minutes > 0 ? ":" + minutes : "") + " " + p;
+        }
+        function addEvents(data) {
+            var ul = $("#event-list")
+            for (var i = 0; i < data.length; i++) {
+                var event = data[i];
+                ul.append('<li class="list-group-item event pull-left">' +
+				'<h4>' + event.code.slice(0, -3) + '</h4>' + 
+				'<p>' + secondsToTime(event.section.start) + ' to ' + secondsToTime(event.section.end) + '<br>' +
+                event.section.location.room + " @ " + event.section.location.address.street + '<br>dummy distance, dummy time to walk' + '</p></li>');
+            }
+        }
+        
+		$("#settings li").click(function(e) {
+			e.preventDefault();
+			var sid = $(this).attr("id").slice(0, -1);
+			$("#settings li[id^='" + sid + "'].active").removeClass("active");
+			$(this).addClass("active");
+		});
+        
         $("#griddy-form").submit(function(e) {
             e.preventDefault();
             var url = $("#griddy-url").val();
             var head = "http://griddy.org/?link="
             if (url.indexOf(head) != 0) { alert("Not a valid Griddy URL."); return; }
             var s = url.substring(head.length);
-            $.post("api/getcoords", { encoded_url: s }, function(data) {
-                console.log(data);
-                // google maps api
-            });
+            $.post("api/getcoords", {
+				encoded_url: s,
+				day: $("li[id^='day-'].active").attr("id").substring(4),
+				term: $("li[id^='term-'].active").attr("id").substring(5)
+			}, addEvents);
+        });
+		
+var dummyData = [
+{
+        code: "MAT135H1F",
+        name: "Calculus 1(A)",
+        section: {
+            code: "L0101",
+            start: 32400,
+            end: 36000,
+            location: {
+                room: "MP 102",
+                address: {
+                    street: "255 Huron Street",
+                    city: "Toronto",
+                    province: "ON",
+                    country: "Canada",
+                    postal: "M5S 1A7"
+                }
+            }
+        }
+    },
+    {
+        code: "CSC108H1F",
+        name: "Introduction to Computer Programming",
+        section: {
+            code: "L0101",
+            start: 36000,
+            end: 39600,
+            location: {
+                room: "WB 116",
+                address: {
+                    street: "184-200 College Street",
+                    city: "Toronto",
+                    province: "ON",
+                    country: "Canada",
+                    postal: "M56 3E5"
+                }
+            }
+        }
+    }
+];
+        $(function() { // debug
+            addEvents(dummyData);
         });
         </script>
     </body>

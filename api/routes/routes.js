@@ -8,8 +8,12 @@ apiRoutes.get('/', function(req, res) {
 
 apiRoutes.post('/getcoords', function(req, res) {
   var encodedUrl = req.query.encoded_url;
+  var day = req.query.day;
+  var term = req.query.term;
 
-  res.json({ message: "Here's the response: " + encodedUrl })
+  var decodedCourses = new Buffer(encodedUrl, 'base64').toString();
+
+  res.json({ message: "Here's the response: " + decodedCourses })
 
 })
 

@@ -1,6 +1,6 @@
-html, body { 
-    height: 100%; 
-    min-height: 100%; 
+html, body {
+    height: 100%;
+    min-height: 100%;
 }
 
 .dropdown .dropdown-menu a:hover
@@ -12,10 +12,13 @@ html, body {
 .body { 
     height: 100%; 
     padding-top: 66px; 
+.body {
+    height: 100%;
+    padding-top: 66px;
 }
 
 .sidebar {
-    background-color: #eee;
+    background: url("img/gray_fabric.png") repeat;
     min-height: 100%;
     padding: 0;
 }
@@ -25,5 +28,13 @@ html, body {
 }
 
 .griddy-url {
-    width: 400px !important; /* ideal width so we can keep responsiveness */
+    width: 400px !important;
+}
+
+.event {
+	cursor: pointer;
+}
+
+.event:hover {
+	background: #efefef;
 }
