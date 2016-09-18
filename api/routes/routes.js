@@ -64,7 +64,7 @@ function getCourseData(courses, term, day) {
                 // We finally get a desirable match, bundle in all the information
                 // and append to our 'dayCourses' array.
 
-                getLocationData(locationCode)
+                var addressData = getLocationData(locationCode)
 
                 courseBundle = {
                   'code': courseCode, // course
@@ -75,17 +75,10 @@ function getCourseData(courses, term, day) {
                     'end': time.end,
                     'location': {
                       'room': time.location,
-                      'address': {
-                        'street': xxx,
-                        'city': xxx,
-                        'province': xxx,
-                        'country': xxx,
-                        'postal': xxx
-                      }
+                      'address': addressData
                     }
                   }
                 }
-
               }
             })
           }
@@ -95,9 +88,22 @@ function getCourseData(courses, term, day) {
   })
 }
 
+// Parses the building.json dataset for the respective location data
 function getLocationData(locationCode) {
   allBuildings.map(function(building) {
-    // BUILDING CONTENT
+    if (locationCode === building.code) {
+      return {
+        "address": {
+          "street": bulding.address.street,
+          "city": bulding.address.city,
+          "province": bulding.address.province,
+          "country": bulding.address.country,
+          "postal": bulding.address.postal,
+          "lat": building.lat,
+          "lng": building.lng
+        }
+      }
+    }
   })
 }
 
