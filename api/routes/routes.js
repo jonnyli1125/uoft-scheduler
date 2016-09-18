@@ -26,7 +26,7 @@ apiRoutes.get('/getcoords', function(req, res) {
   })
 
   courseData = getCourseData(decodedCourses, term, day)
-  //res.json({ courseData })
+  courseData.sort(function(a, b) { return a.section.start - b.section.start; });
   if (callback) {
     res.setHeader('Content-Type', 'text/javascript');
     res.end(callback + '(' + JSON.stringify(courseData) + ')');
@@ -102,7 +102,6 @@ function getLocationData(locationCode) {
     if (locationCode === building.code) {
 
       result =  {
-        "address": {
           "street": building.address.street,
           "city": building.address.city,
           "province": building.address.province,
@@ -110,7 +109,6 @@ function getLocationData(locationCode) {
           "postal": building.address.postal,
           "lat": building.lat,
           "lng": building.lng
-        }
       }
     }
   })

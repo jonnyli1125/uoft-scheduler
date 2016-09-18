@@ -87,38 +87,47 @@
 		var distanceMatrixService;
         function addEvents(data) {
 			if (!distanceMatrixService) distanceMatrixService = new google.maps.DistanceMatrixService();
-            for (var i = 0; i < data.length; i++) {
-                var event = data[i];
-				if (i > 0) {
-					var prevEvent = data[i-1];
-					distanceMatrixService.getDistanceMatrix({
-						origins: [formatAddress(prevEvent.section.location.address)],
-						destinations: [formatAddress(event.section.location.address)],
-						travelMode: "WALKING"
-					}, function(response, status) {
-						if (status == "OK") {
-							var obj = response.rows[0].elements[0];
-							addEvent(event, obj.distance.text, obj.duration.text + " from previous class");
-						}
-					});
-                } else addEvent(event);
-            }
+			addEvent(data[0]);
+			var origins = [];
+			var destinations = [];
+			for (var i = 1; i < data.length; i++) {
+				origins.push(formatAddress(data[i-1].section.location.address));
+				destinations.push(formatAddress(data[i].section.location.address));
+			}
+			distanceMatrixService.getDistanceMatrix({
+				origins: origins,
+				destinations: destinations,
+				travelMode: "WALKING"
+			}, function(response, status) {
+				if (status == "OK") {
+					for (var i = 0; i < response.rows.length; i++) {
+						var obj = response.rows[i].elements[0];
+						if (obj.status == "OK") addEvent(data[i + 1], obj.distance.text, obj.duration.text + " from previous class");
+						else addEvent(data[i + 1]);
+					}
+					map.setZoom(16);
+					var address = data[0].section.location.address;
+					if (address.lat) map.panTo(new google.maps.LatLng(address.lat, address.lng))
+				}
+			});
         }
 		var lastOpenedInfoWindow;
+		var markers = [];
 		function addEvent(event, distance, timeToWalk) {
 			var slicedCode = event.code.slice(0, -3);
 			var address = event.section.location.address;
 			$("#event-list").append('<li class="list-group-item event">' +
 				'<h4>' + slicedCode + '</h4>' + 
 				'<p>' + secondsToTime(event.section.start) + ' to ' + secondsToTime(event.section.end) + '<br>' +
-                '<span class="room">' + event.section.location.room + "</span> @ <a href='#' class='address'>" + formatAddress(event.section.location.address) + '<span class="coordinates" style="display: none;">' + event.section.location.lat + '|' + event.section.location.lng + '</span>' + '</a>' + 
-				((distance && timeToWalk) ? ('<br><a href="#" class="directions">' + distance + ', ' + timeToWalk + '</a>') : '') + '</p></li>');
-			var coordinates = new google.maps.LatLng(event.section.location.lat, event.section.location.lng);
+				(event.section.location.room ? ('<span class="room">' + event.section.location.room + "</span> @ <a href='#' class='address'>" + formatAddress(event.section.location.address) + '<span class="coordinates" style="display: none;">' + event.section.location.address.lat + '|' + event.section.location.address.lng + '</span>' + '</a>' +
+				((distance && timeToWalk) ? ('<br><a href="#" class="directions">' + distance + ', ' + timeToWalk + '</a>') : '')) : "Location unavailable") + '</p></li>');
+			var coordinates = new google.maps.LatLng(address.lat, address.lng);
 			var marker = new google.maps.Marker({
 				position: coordinates,
 				map: map,
 				title: event.section.location.room.split(" ")[0]
 			});
+			markers.push(marker);
 			google.maps.event.addListener(marker, 'click', function () {
 				if (lastOpenedInfoWindow) lastOpenedInfoWindow.close();
 				var infowindow = new google.maps.InfoWindow();
@@ -137,7 +146,6 @@
 			$(this).addClass("active");
 			var url = $("#griddy-url").val();
 			if (validGriddyURL(url)) {
-				$("#settings ul").empty();
 				submitSchedule(getEncodedCourses(url))
 			}
 		});
@@ -151,6 +159,8 @@
 		function validGriddyURL(url) { return url.indexOf(griddyUrlHead) == 0; }
 		function getEncodedCourses(url) { return url.substring(griddyUrlHead.length); }
 		function submitSchedule(encodedCourses) {
+			$(".sidebar ul").empty();
+			for (var i = 0; i < markers.length; i++) markers[i].setMap(null);
             $.ajax({
 				method: "POST",
 				url: "http://127.0.0.1:8080/api/getcoords",
