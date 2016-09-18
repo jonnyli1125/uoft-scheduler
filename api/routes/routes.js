@@ -9,7 +9,8 @@ apiRoutes.get('/', function(req, res) {
     res.json({ message: 'Welcome to this API! It is at http://localhost:8080/api' });
 });
 
-apiRoutes.post('/getcoords', function(req, res) {
+apiRoutes.get('/getcoords', function(req, res) {
+  var callback = req.query.callback;
   var encodedUrl = req.body.encoded_url || req.query.encoded_url || req.headers['x-www-form-urlencoded'];
   var day = req.body.day || req.query.day || req.headers['x-www-form-urlencoded'];
   var term = req.body.term || req.query.term || req.headers['x-www-form-urlencoded'];
@@ -25,7 +26,14 @@ apiRoutes.post('/getcoords', function(req, res) {
   })
 
   courseData = getCourseData(decodedCourses, term, day)
-  res.json({ courseData })
+  //res.json({ courseData })
+  if (callback) {
+    res.setHeader('Content-Type', 'text/javascript');
+    res.end(callback + '(' + JSON.stringify(courseData) + ')');
+  } else {
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ courseData });
+  }
 })
 
 function getCourseData(courses, term, day) {

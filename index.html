@@ -152,8 +152,8 @@
 		function getEncodedCourses(url) { return url.substring(griddyUrlHead.length); }
 		function submitSchedule(encodedCourses) {
             $.ajax({
-				url: "http://127.0.0.1:8080/api/getcoords",
 				method: "POST",
+				url: "http://127.0.0.1:8080/api/getcoords",
 				dataType: "jsonp",
 				data: {
 					encoded_url: encodedCourses,
