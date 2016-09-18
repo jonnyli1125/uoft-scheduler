@@ -28,11 +28,11 @@ apiRoutes.post('/getcoords', function(req, res) {
 
   courseData = getCourseData(decodedCourses, term, day)
 
-  res.json({ message: "Here's the response: " + decodedCourses })
+  res.json({ courseData })
 })
 
 function getCourseData(courses, term, day) {
-  dayCourses = []
+  var dayCourses = []
 
   // "For every course the user has on Gidly..."
   courses.map(function(course) {
@@ -79,6 +79,9 @@ function getCourseData(courses, term, day) {
                     }
                   }
                 }
+
+                dayCourses.push(courseBundle);
+
               }
             })
           }
@@ -86,6 +89,8 @@ function getCourseData(courses, term, day) {
       }
     })
   })
+
+  return dayCourses;
 }
 
 // Parses the building.json dataset for the respective location data
@@ -102,7 +107,7 @@ function getLocationData(locationCode) {
           "lat": building.lat,
           "lng": building.lng
         }
-      }
+      };
     }
   })
 }
