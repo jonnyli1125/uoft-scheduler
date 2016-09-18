@@ -151,11 +151,17 @@
 		function validGriddyURL(url) { return url.indexOf(griddyUrlHead) == 0; }
 		function getEncodedCourses(url) { return url.substring(griddyUrlHead.length); }
 		function submitSchedule(encodedCourses) {
-            $.post("http://127.0.0.1:8080/api/getcoords", {
-				encoded_url: encodedCourses,
-				day: $("li[id^='day-'].active").attr("id").substring(4),
-				term: $("li[id^='term-'].active").attr("id").substring(5)
-			}, addEvents);
+            $.ajax({
+				url: "http://127.0.0.1:8080/api/getcoords",
+				method: "POST",
+				dataType: "jsonp",
+				data: {
+					encoded_url: encodedCourses,
+					day: $("li[id^='day-'].active").attr("id").substring(4),
+					term: $("li[id^='term-'].active").attr("id").substring(5)
+				},
+				success: addEvents
+			});
 		}
         $(function() {
 			var today = new Date();
