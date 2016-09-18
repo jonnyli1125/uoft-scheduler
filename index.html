@@ -67,6 +67,7 @@
             </div>  
         </div>
         <script>
+		var map;
         function secondsToTime(sec) {
             var sec_num = parseInt(sec, 10);
             var hours = Math.floor(sec_num / 3600);
@@ -83,8 +84,9 @@
             return hours + (minutes > 0 ? ":" + minutes : "") + " " + p;
         }
 		function formatAddress(obj) { return obj.street + ", " + obj.city + " " + obj.province + ", " + obj.country; }
+		var distanceMatrixService;
         function addEvents(data) {
-			var distanceMatrixService = new google.maps.DistanceMatrixService();
+			if (!distanceMatrixService) distanceMatrixService = new google.maps.DistanceMatrixService();
             for (var i = 0; i < data.length; i++) {
                 var event = data[i];
 				if (i > 0) {
@@ -96,23 +98,37 @@
 					}, function(response, status) {
 						if (status == "OK") {
 							var obj = response.rows[0].elements[0];
-							addEvent(event, i, obj.distance.text, obj.duration.text);
+							addEvent(event, obj.distance.text, obj.duration.text + " from previous class");
 						}
 					});
-                } else addEvent(event, i, '0 m', '0 min');
+                } else addEvent(event);
             }
         }
-		
-		function addEvent(event, index, distance, timeToWalk) {
+		var lastOpenedInfoWindow;
+		function addEvent(event, distance, timeToWalk) {
+			var slicedCode = event.code.slice(0, -3);
+			var address = event.section.location.address;
 			$("#event-list").append('<li class="list-group-item event">' +
-				'<h4>' + event.code.slice(0, -3) + '</h4>' + 
+				'<h4>' + slicedCode + '</h4>' + 
 				'<p>' + secondsToTime(event.section.start) + ' to ' + secondsToTime(event.section.end) + '<br>' +
-                event.section.location.room + " @ <a href='#' id='address-" + index + "'>" + event.section.location.address.street + '</a><br>' + 
-				'<span id="distance">' + distance + '</span>, <span id="timeToWalk">' + timeToWalk + '</span>' + '</p></li>');
+                '<span class="room">' + event.section.location.room + "</span> @ <a href='#' class='address'>" + formatAddress(event.section.location.address) + '<span class="coordinates" style="display: none;">' + event.section.location.lat + '|' + event.section.location.lng + '</span>' + '</a>' + 
+				((distance && timeToWalk) ? ('<br><a href="#" class="directions">' + distance + ', ' + timeToWalk + '</a>') : '') + '</p></li>');
+			var coordinates = new google.maps.LatLng(event.section.location.lat, event.section.location.lng);
+			var marker = new google.maps.Marker({
+				position: coordinates,
+				map: map,
+				title: event.section.location.room.split(" ")[0]
+			});
+			google.maps.event.addListener(marker, 'click', function () {
+				if (lastOpenedInfoWindow) lastOpenedInfoWindow.close();
+				var infowindow = new google.maps.InfoWindow();
+				lastOpenedInfoWindow = infowindow;
+				infowindow.setContent(slicedCode + " @ " + event.section.location.room);
+				infowindow.open(map, marker);
+				map.panTo(marker.getPosition());
+			});
 		}
-		
-		$('#settings').on('click', function (e) { e.stopPropagation(); });
-        
+		$('.dropdown-menu').on('click', function (e) { e.stopPropagation(); });
 		$("#settings li.item").click(function(e) {
 			e.preventDefault();
 			var rawId = $(this).attr("id");
@@ -125,7 +141,6 @@
 				submitSchedule(getEncodedCourses(url))
 			}
 		});
-        
 		$("#griddy-form").submit(function(e) {
 			e.preventDefault();
             var url = $("#griddy-url").val();
@@ -142,62 +157,45 @@
 				term: $("li[id^='term-'].active").attr("id").substring(5)
 			}, addEvents);
 		}
-		
-var dummyData = [
-{
-        code: "MAT135H1F",
-        name: "Calculus 1(A)",
-        section: {
-            code: "L0101",
-            start: 32400,
-            end: 36000,
-            location: {
-                room: "MP 102",
-                address: {
-                    street: "255 Huron Street",
-                    city: "Toronto",
-                    province: "ON",
-                    country: "Canada",
-                    postal: "M5S 1A7"
-                }
-            }
-        }
-    },
-    {
-        code: "CSC108H1F",
-        name: "Introduction to Computer Programming",
-        section: {
-            code: "L0101",
-            start: 36000,
-            end: 39600,
-            location: {
-                room: "WB 116",
-                address: {
-                    street: "184-200 College Street",
-                    city: "Toronto",
-                    province: "ON",
-                    country: "Canada",
-                    postal: "M56 3E5"
-                }
-            }
-        }
-    }
-];
-        $(function() { // debug
+        $(function() {
 			var today = new Date();
 			$("#settings li#term-" + (today.getFullYear() == 2016 ? "F": "S")).click();
 			var weekday = today.getDay();
 			if (weekday > 0 && weekday < 6) $("#settings li[id^=day-]")[weekday].click();
-            addEvents(dummyData);
         });
 		function initMap() {
 			// Create a map object and specify the DOM element for display.
-			var map = new google.maps.Map($("#map")[0], {
+			map = new google.maps.Map($("#map")[0], {
 				center: {lat: 43.6629, lng: -79.3957},
 				scrollwheel: false,
 				zoom: 16
 			});
 		}
+		var directionsDisplay;
+		var directionsService;
+		$("body").on("click", "a.address", function(e) {
+			e.preventDefault();
+			var arr = $(this).find(".coordinates").text().split("|");
+			var coordinates = new google.maps.LatLng(arr[0], arr[1]);
+			map.panTo(coordinates);
+		});
+		$("body").on("click", "a.directions", function(e) {
+			if (!directionsService) directionsService = new google.maps.DirectionsService();
+			if (!directionsDisplay) {
+				directionsDisplay = new google.maps.DirectionsRenderer();
+				directionsDisplay.setMap(map);
+			}
+			var arr = $(this).parent().find(".coordinates").text().split("|");
+			var coordinates = new google.maps.LatLng(arr[0], arr[1]);
+			var li = $(this).parent().parent();
+			var prevArr = li.prev().find(".coordinates").text().split("|");
+			var prevCoordinates = new google.maps.LatLng(prevArr[0], prevArr[1]);
+			directionsService.route({
+				origin: prevCoordinates,
+				destination: coordinates,
+				travelMode: "WALKING"
+			}, function(result, status) { if (status == 'OK') directionsDisplay.setDirections(result); });
+		});
         </script>
 		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6LFlCi0We4H4xfBkUekkg4Mc10BPIIuw&callback=initMap"></script>
     </body>
