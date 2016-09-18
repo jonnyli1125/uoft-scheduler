@@ -10,9 +10,9 @@ apiRoutes.get('/', function(req, res) {
 });
 
 apiRoutes.post('/getcoords', function(req, res) {
-  var encodedUrl = req.query.encoded_url;
-  var day = req.query.day;
-  var term = req.query.term;
+  var encodedUrl = req.body.encoded_url || req.query.encoded_url || req.headers['x-www-form-urlencoded'];
+  var day = req.body.day || req.query.day || req.headers['x-www-form-urlencoded'];
+  var term = req.body.term || req.query.term || req.headers['x-www-form-urlencoded'];
 
   var rawCourses = new Buffer(encodedUrl, 'base64').toString().split(',');
   var decodedCourses = []
