@@ -4,6 +4,7 @@
         <link href="https://bootswatch.com/paper/bootstrap.min.css" rel="stylesheet" type="text/css">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="main.css" rel="stylesheet" type="text/css">
+		<title>UofT Scheduler</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
     </head>
@@ -28,7 +29,7 @@
                     </form>
                     <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" style="height: 64px"><i class="fa fa-cutlery fa-2x"></i></a>
+                            <a href="#" class="dropdown-toggle" role="button" aria-expanded="false" style="height: 64px"><i class="fa fa-cutlery fa-2x"></i></a>
                             <ul class="dropdown-menu" role="menu">
                                 <li class="dropdown-header">Food Finder</li>
                                 <li class="divider"></li>
@@ -41,14 +42,14 @@
                                 <li class="dropdown-header">Settings</li>
 
                                 <li class="divider"></li>
-								<li id="term-F" class="active"><a href="#">Fall</a></li>
-								<li id="term-S"><a href="#">Spring</a></li>
+								<li class="item" id="term-F"><a href="#">Fall</a></li>
+								<li class="item" id="term-S"><a href="#">Spring</a></li>
                                 <li class="divider"></li>
-								<li id="day-MONDAY" class="active"><a href="#">Monday</a></li>
-								<li id="day-TUESDAY"><a href="#">Tuesday</a></li>
-								<li id="day-WEDNESDAY"><a href="#">Wednesday</a></li>
-								<li id="day-THURSDAY"><a href="#">Thursday</a></li>
-								<li id="day-FRIDAY"><a href="#">Friday</a></li>
+								<li class="item active" id="day-MONDAY"><a href="#">Monday</a></li>
+								<li class="item" id="day-TUESDAY"><a href="#">Tuesday</a></li>
+								<li class="item" id="day-WEDNESDAY"><a href="#">Wednesday</a></li>
+								<li class="item" id="day-THURSDAY"><a href="#">Thursday</a></li>
+								<li class="item" id="day-FRIDAY"><a href="#">Friday</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -58,28 +59,7 @@
         <div class="container-fluid body">
             <div class="row" style="height: 100%;">
                 <div class="col-md-3 sidebar">
-                    <ul class="nav nav-sidebar list-group" id="event-list">
-                        <li class="list-group-item event">
-                            <h4>MAT135</h4>
-                            <p>100 meters, 5 minutes</p>
-                        </li>
-                        <li class="list-group-item event">
-                            <h4>CSC108</h4>
-                            <p>50 meters, 3 minutes</p>
-                        </li>
-                        <li class="list-group-item">
-                            <h4>CSC165</h4>
-                            <p>203 meters, 6 minutes</p>
-                        </li>
-                        <li class="list-group-item">
-                            <h4>MAT223</h4>
-                            <p>70 meters, 8 minutes</p>
-                        </li>
-                        <li class="list-group-item">
-                            <h4>TBB199</h4>
-                            <p>200 meters, 1 minutes</p>
-                        </li>
-                    </ul>
+                    <ul class="nav nav-sidebar list-group" id="event-list"></ul>
                 </div>
 				<div class="col-md-9 map">
 					<div id="map"></div>
@@ -124,33 +104,44 @@
         }
 		
 		function addEvent(event, index, distance, timeToWalk) {
-			$("#event-list").append('<li class="list-group-item event pull-left">' +
+			$("#event-list").append('<li class="list-group-item event">' +
 				'<h4>' + event.code.slice(0, -3) + '</h4>' + 
 				'<p>' + secondsToTime(event.section.start) + ' to ' + secondsToTime(event.section.end) + '<br>' +
                 event.section.location.room + " @ <a href='#' id='address-" + index + "'>" + event.section.location.address.street + '</a><br>' + 
 				'<span id="distance">' + distance + '</span>, <span id="timeToWalk">' + timeToWalk + '</span>' + '</p></li>');
 		}
 		
+		$('#settings').on('click', function (e) { e.stopPropagation(); });
         
-		$("#settings li").click(function(e) {
+		$("#settings li.item").click(function(e) {
 			e.preventDefault();
-			var sid = $(this).attr("id").slice(0, -1);
+			var rawId = $(this).attr("id");
+			var sid = rawId.substring(0, rawId.indexOf("-") + 1);
 			$("#settings li[id^='" + sid + "'].active").removeClass("active");
 			$(this).addClass("active");
+			var url = $("#griddy-url").val();
+			if (validGriddyURL(url)) {
+				$("#settings ul").empty();
+				submitSchedule(getEncodedCourses(url))
+			}
 		});
         
-        $("#griddy-form").submit(function(e) {
-            e.preventDefault();
+		$("#griddy-form").submit(function(e) {
+			e.preventDefault();
             var url = $("#griddy-url").val();
-            var head = "http://griddy.org/?link="
-            if (url.indexOf(head) != 0) { alert("Not a valid Griddy URL."); return; }
-            var s = url.substring(head.length);
+            if (!validGriddyURL(url)) { alert("Not a valid Griddy URL."); return; }
+            submitSchedule(getEncodedCourses(url))
+		});
+		var griddyUrlHead = "http://griddy.org/?link=";
+		function validGriddyURL(url) { return url.indexOf(griddyUrlHead) == 0; }
+		function getEncodedCourses(url) { return url.substring(griddyUrlHead.length); }
+		function submitSchedule(encodedCourses) {
             $.post("api/getcoords", {
-				encoded_url: s,
+				encoded_url: encodedCourses,
 				day: $("li[id^='day-'].active").attr("id").substring(4),
 				term: $("li[id^='term-'].active").attr("id").substring(5)
 			}, addEvents);
-        });
+		}
 		
 var dummyData = [
 {
@@ -193,6 +184,10 @@ var dummyData = [
     }
 ];
         $(function() { // debug
+			var today = new Date();
+			$("#settings li#term-" + (today.getFullYear() == 2016 ? "F": "S")).click();
+			var weekday = today.getDay();
+			if (weekday > 0 && weekday < 6) $("#settings li[id^=day-]")[weekday].click();
             addEvents(dummyData);
         });
 		function initMap() {
