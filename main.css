@@ -3,10 +3,6 @@ html, body {
     min-height: 100%;
 }
 
-.dropdown .dropdown-menu a:hover {
-	background-color: #717384;
-}
-
 .body { 
     height: 100%; 
     padding-top: 66px; 
