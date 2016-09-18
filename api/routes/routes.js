@@ -43,7 +43,7 @@ function getCourseData(courses, term, day) {
     allCourses.map(function(allCourse) {
       // First: search by course code
       if (courseCode === allCourse.code) {
-        console.log("Found a match with " + courseCode + " and " + allCourse.code)
+        // console.log("Found a match with " + courseCode + " and " + allCourse.code)
 
         // Second: search meeting_sections for the same lecture/tutorial code
         // Convention: first letter of Lec/Tut, followed by numerical code
@@ -54,17 +54,19 @@ function getCourseData(courses, term, day) {
           courseTypeSub = courseType[0] + courseType.substring(3, courseType.length)
 
           if (courseTypeSub === meetingSection.code) {
-            console.log("Found a meeting match with " + courseTypeSub + " and " + meetingSection.code)
+            // console.log("Found a meeting match with " + courseTypeSub + " and " + meetingSection.code)
 
             // Third: search times to ensure Day is the same
             meetingSection.times.map(function(time) {
               if (day === time.day) {
-                console.log("AND WE HAVE A DAY MATCH: " + day + " with " + time.day)
+                // console.log("AND WE HAVE A DAY MATCH: " + day + " with " + time.day)
 
                 // We finally get a desirable match, bundle in all the information
                 // and append to our 'dayCourses' array.
 
-                var addressData = getLocationData(locationCode)
+                var addressData = getLocationData(time.location.substring(0, 2));
+
+                console.log("addressData:", addressData);
 
                 courseBundle = {
                   'code': courseCode, // course
@@ -95,19 +97,23 @@ function getCourseData(courses, term, day) {
 
 // Parses the building.json dataset for the respective location data
 function getLocationData(locationCode) {
+
   allBuildings.map(function(building) {
+
     if (locationCode === building.code) {
+      console.log("IT'S A LOCATION MATCH: ", locationCode + " vs " + building.code);
+
       return {
         "address": {
-          "street": bulding.address.street,
-          "city": bulding.address.city,
-          "province": bulding.address.province,
-          "country": bulding.address.country,
-          "postal": bulding.address.postal,
+          "street": building.address.street,
+          "city": building.address.city,
+          "province": building.address.province,
+          "country": building.address.country,
+          "postal": building.address.postal,
           "lat": building.lat,
           "lng": building.lng
         }
-      };
+      }
     }
   })
 }
