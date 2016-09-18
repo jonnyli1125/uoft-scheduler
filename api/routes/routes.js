@@ -32,7 +32,7 @@ apiRoutes.get('/getcoords', function(req, res) {
     res.end(callback + '(' + JSON.stringify(courseData) + ')');
   } else {
     res.setHeader('Content-Type', 'application/json');
-    res.json({ courseData });
+    res.end(courseData);
   }
 })
 
