@@ -38,3 +38,16 @@ html, body {
 .event:hover {
 	background: #efefef;
 }
+
+.map {
+	position: fixed;
+	left: 25%;
+	top: 66px;
+	height: calc(100% - 66px);
+	padding: 0;
+}
+
+#map {
+	height: 100%;
+	width: 100%;
+}

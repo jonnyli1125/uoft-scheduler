@@ -41,14 +41,14 @@
                                 <li class="dropdown-header">Settings</li>
 
                                 <li class="divider"></li>
-								<li id="term-f" class="active"><a href="#">Fall</a></li>
-								<li id="term-s"><a href="#">Spring</a></li>
+								<li id="term-F" class="active"><a href="#">Fall</a></li>
+								<li id="term-S"><a href="#">Spring</a></li>
                                 <li class="divider"></li>
-								<li id="day-m" class="active"><a href="#">Monday</a></li>
-								<li id="day-t"><a href="#">Tuesday</a></li>
-								<li id="day-w"><a href="#">Wednesday</a></li>
-								<li id="day-r"><a href="#">Thursday</a></li>
-								<li id="day-f"><a href="#">Friday</a></li>
+								<li id="day-MONDAY" class="active"><a href="#">Monday</a></li>
+								<li id="day-TUESDAY"><a href="#">Tuesday</a></li>
+								<li id="day-WEDNESDAY"><a href="#">Wednesday</a></li>
+								<li id="day-THURSDAY"><a href="#">Thursday</a></li>
+								<li id="day-FRIDAY"><a href="#">Friday</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -81,6 +81,9 @@
                         </li>
                     </ul>
                 </div>
+				<div class="col-md-9 map">
+					<div id="map"></div>
+				</div>
             </div>  
         </div>
         <script>
@@ -99,16 +102,35 @@
             //if (seconds < 10) seconds = "0" + seconds;
             return hours + (minutes > 0 ? ":" + minutes : "") + " " + p;
         }
+		function formatAddress(obj) { return obj.street + ", " + obj.city + " " + obj.province + ", " + obj.country; }
         function addEvents(data) {
-            var ul = $("#event-list")
+			var distanceMatrixService = new google.maps.DistanceMatrixService();
             for (var i = 0; i < data.length; i++) {
                 var event = data[i];
-                ul.append('<li class="list-group-item event pull-left">' +
-				'<h4>' + event.code.slice(0, -3) + '</h4>' + 
-				'<p>' + secondsToTime(event.section.start) + ' to ' + secondsToTime(event.section.end) + '<br>' +
-                event.section.location.room + " @ " + event.section.location.address.street + '<br>dummy distance, dummy time to walk' + '</p></li>');
+				if (i > 0) {
+					var prevEvent = data[i-1];
+					distanceMatrixService.getDistanceMatrix({
+						origins: [formatAddress(prevEvent.section.location.address)],
+						destinations: [formatAddress(event.section.location.address)],
+						travelMode: "WALKING"
+					}, function(response, status) {
+						if (status == "OK") {
+							var obj = response.rows[0].elements[0];
+							addEvent(event, i, obj.distance.text, obj.duration.text);
+						}
+					});
+                } else addEvent(event, i, '0 m', '0 min');
             }
         }
+		
+		function addEvent(event, index, distance, timeToWalk) {
+			$("#event-list").append('<li class="list-group-item event pull-left">' +
+				'<h4>' + event.code.slice(0, -3) + '</h4>' + 
+				'<p>' + secondsToTime(event.section.start) + ' to ' + secondsToTime(event.section.end) + '<br>' +
+                event.section.location.room + " @ <a href='#' id='address-" + index + "'>" + event.section.location.address.street + '</a><br>' + 
+				'<span id="distance">' + distance + '</span>, <span id="timeToWalk">' + timeToWalk + '</span>' + '</p></li>');
+		}
+		
         
 		$("#settings li").click(function(e) {
 			e.preventDefault();
@@ -173,6 +195,15 @@ var dummyData = [
         $(function() { // debug
             addEvents(dummyData);
         });
+		function initMap() {
+			// Create a map object and specify the DOM element for display.
+			var map = new google.maps.Map($("#map")[0], {
+				center: {lat: 43.6629, lng: -79.3957},
+				scrollwheel: false,
+				zoom: 16
+			});
+		}
         </script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6LFlCi0We4H4xfBkUekkg4Mc10BPIIuw&callback=initMap"></script>
     </body>
 </html>
