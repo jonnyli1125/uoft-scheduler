@@ -2,6 +2,7 @@ var express = require('express');
 var apiRoutes = express.Router();
 var path = require('path');
 var allCourses = require(path.join(__dirname, '../', '../', './datasets/courses'));
+var allBuildings = require(path.join(__dirname, '../', '../', './datasets/buildings'));
 
 // basic API route
 apiRoutes.get('/', function(req, res) {
@@ -31,16 +32,15 @@ apiRoutes.post('/getcoords', function(req, res) {
 })
 
 function getCourseData(courses, term, day) {
+  dayCourses = []
+
+  // "For every course the user has on Gidly..."
   courses.map(function(course) {
-      var courseCode = course.split(' ')[0];
-      var courseType = course.split(' ')[1];
+    var courseCode = course.split(' ')[0];
+    var courseType = course.split(' ')[1];
 
-      // console.log("Course Code: ", courseCode);
-      // console.log("Course Type: ", courseType);
-
+    // "For every course offered at UofT..."
     allCourses.map(function(allCourse) {
-      // console.log(courseCode + " vs " + allCourse.code)
-
       // First: search by course code
       if (courseCode === allCourse.code) {
         console.log("Found a match with " + courseCode + " and " + allCourse.code)
@@ -60,12 +60,44 @@ function getCourseData(courses, term, day) {
             meetingSection.times.map(function(time) {
               if (day === time.day) {
                 console.log("AND WE HAVE A DAY MATCH: " + day + " with " + time.day)
+
+                // We finally get a desirable match, bundle in all the information
+                // and append to our 'dayCourses' array.
+
+                getLocationData(locationCode)
+
+                courseBundle = {
+                  'code': courseCode, // course
+                  'name': allCourse.name,
+                  'section': {
+                    'code': meetingSection.code, // lecture/tutorial
+                    'start': time.start,
+                    'end': time.end,
+                    'location': {
+                      'room': time.location,
+                      'address': {
+                        'street': xxx,
+                        'city': xxx,
+                        'province': xxx,
+                        'country': xxx,
+                        'postal': xxx
+                      }
+                    }
+                  }
+                }
+
               }
             })
           }
         })
       }
     })
+  })
+}
+
+function getLocationData(locationCode) {
+  allBuildings.map(function(building) {
+    // BUILDING CONTENT
   })
 }
 

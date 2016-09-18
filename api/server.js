@@ -24,7 +24,7 @@ app.get('/', function(req, res) {
     res.json({ message: 'Welcome to the main route! The API is at http:localhost:' + port + '/api' });
 });
 
-// authentication routes
+// API routes
 app.use('/api', apiRoutes);
 
 // start the server
